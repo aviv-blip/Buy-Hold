@@ -1,0 +1,695 @@
+<title>BRRRR Rental Pro Forma</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: sticky answer bar over four numbered steps — what you know, how you buy, how you refi, how it runs — then the statements. */
+:root{
+  --bg:#f4f5f7; --surface:#ffffff; --surface-2:#eceef2; --border:#d6dae1; --border-strong:#b9c0cb;
+  --fg:#15202b; --fg-2:#4a5767; --fg-muted:#78859a;
+  --accent:#1f4e79; --accent-soft:#e4edf6;
+  --pos:#14673a; --neg:#a52121; --warn:#8a5206;
+  --pos-bg:#e3f2e8; --neg-bg:#fbe7e7; --warn-bg:#fcf0dd;
+  --font-sans:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --radius:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12171d; --surface:#1a2129; --surface-2:#222b34; --border:#2e3945; --border-strong:#44525f;
+  --fg:#e9eef4; --fg-2:#a8b5c4; --fg-muted:#7d8b9b;
+  --accent:#7fb2e0; --accent-soft:#1d2d3d;
+  --pos:#5ed08d; --neg:#f08b8b; --warn:#e8b45f;
+  --pos-bg:#162b20; --neg-bg:#2e1a1a; --warn-bg:#2d2415;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#12171d; --surface:#1a2129; --surface-2:#222b34; --border:#2e3945; --border-strong:#44525f;
+  --fg:#e9eef4; --fg-2:#a8b5c4; --fg-muted:#7d8b9b;
+  --accent:#7fb2e0; --accent-soft:#1d2d3d;
+  --pos:#5ed08d; --neg:#f08b8b; --warn:#e8b45f;
+  --pos-bg:#162b20; --neg-bg:#2e1a1a; --warn-bg:#2d2415;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-sans);line-height:1.5;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:20;background:var(--bg)}
+.wrap{max-width:900px;margin:0 auto;padding-block:24px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font-size:24px;font-weight:600;letter-spacing:-.02em;margin:0;text-wrap:balance}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-muted)}
+.lede{color:var(--fg-2);font-size:14px;margin-top:6px;max-width:62ch}
+
+/* deal at a glance */
+.glance{margin-top:18px;background:var(--pos-bg);border:1px solid var(--border);
+  border-left:4px solid var(--pos);border-radius:var(--radius);padding:15px 17px}
+.glance-head{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--pos);margin-bottom:12px}
+.g-sec{font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-2);
+  margin:14px 0 7px;padding-top:12px;border-top:1px solid var(--border)}
+.g-sec.first{margin-top:0;padding-top:0;border-top:0}
+.g-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:11px 16px}
+.g-k{font-size:10.5px;color:var(--fg-muted);letter-spacing:.03em}
+.g-v{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:17.5px;font-weight:600;
+  color:var(--pos);margin-top:2px;letter-spacing:-.01em}
+.g-v.neg{color:var(--neg)} .g-v.warnc{color:var(--warn)} .g-v.plain{color:var(--fg)}
+.g-grid.hi{grid-template-columns:repeat(auto-fit,minmax(142px,1fr));gap:13px 18px}
+.g-grid.hi .g-v{font-size:21px}
+.more{margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.more summary{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--fg-2);cursor:pointer;list-style:none}
+.more summary::-webkit-details-marker{display:none}
+.more summary::before{content:"\25B8\00a0\00a0";color:var(--fg-muted)}
+.more[open] summary::before{content:"\25BE\00a0\00a0"}
+.more summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+.g-foot{font-size:11.5px;color:var(--fg-2);margin-top:13px;padding-top:11px;border-top:1px solid var(--border)}
+.gate{font-size:13px;color:var(--warn)}
+
+.steps{display:flex;flex-direction:column;gap:18px;margin-top:22px}
+.step{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.step-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:14px 16px 0}
+.num{font-family:var(--font-mono);font-size:11.5px;font-weight:600;color:var(--accent);
+  background:var(--accent-soft);border-radius:5px;padding:2px 7px}
+.step-head h2{font-size:16px;font-weight:600;margin:0;letter-spacing:-.01em}
+.step-head .meta{font-size:12px;color:var(--fg-muted);margin-left:auto}
+.step-why{font-size:12.5px;color:var(--fg-muted);padding:6px 16px 0;max-width:62ch}
+.step-body{padding:12px 16px 16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.f-group{min-width:0}
+.lbl{display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap}
+label{font-size:12.5px;color:var(--fg-2)}
+.chip{font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-radius:4px;padding:1.5px 5px}
+.chip.y{background:var(--pos-bg);color:var(--pos)}
+.chip.a{background:var(--warn-bg);color:var(--warn)}
+input{width:100%;min-width:0;font-family:var(--font-mono);font-size:14.5px;font-variant-numeric:tabular-nums;
+  background:var(--surface-2);color:var(--fg);border:1px solid var(--border-strong);border-radius:7px;padding:9px}
+input[type=text]{font-family:var(--font-sans)}
+input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+input.empty{border-color:var(--warn)}
+.sub-note{font-size:11.5px;color:var(--fg-muted);margin-top:5px}
+.mini{font-family:var(--font-sans);font-size:11px;font-weight:500;color:var(--accent);background:transparent;
+  border:1px solid var(--border-strong);border-radius:5px;padding:2px 6px;cursor:pointer;margin-top:5px}
+.mini:hover{border-color:var(--accent)}
+.hint{font-size:12px;color:var(--fg-muted);margin-top:12px;max-width:66ch}
+
+/* inline answers */
+.answer{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;
+  margin-top:14px;padding-top:14px;border-top:1px solid var(--border-strong)}
+.answer .a-k{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-muted)}
+.answer .a-v{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:20px;font-weight:600;
+  margin-top:5px;letter-spacing:-.02em}
+.answer .a-f{font-size:11px;color:var(--fg-muted);margin-top:2px}
+
+.stmt{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.stmt h3{font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-muted);margin:0 0 8px}
+.row{display:flex;justify-content:space-between;gap:14px;padding:4.5px 0;font-size:13.5px}
+.row span:first-child{color:var(--fg-2);min-width:0}
+.row span:last-child{font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.row.sub-h{font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-muted);padding:12px 0 2px}
+.row.total{border-top:1px solid var(--border-strong);margin-top:7px;padding-top:9px;font-weight:600}
+.row.total span:first-child{color:var(--fg)}
+.pos{color:var(--pos)} .neg{color:var(--neg)} .warnc{color:var(--warn)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+@media (max-width:660px){.two{grid-template-columns:1fr}.step-head .meta{margin-left:0;width:100%}}
+.flags{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.flag{display:flex;gap:10px;font-size:13px;border-radius:8px;padding:10px 12px;border:1px solid var(--border)}
+.flag .tag{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;padding-top:2px}
+.flag.bad{background:var(--neg-bg)} .flag.bad .tag{color:var(--neg)}
+.flag.mid{background:var(--warn-bg)} .flag.mid .tag{color:var(--warn)}
+.flag.ok{background:var(--pos-bg)} .flag.ok .tag{color:var(--pos)}
+.seg{display:inline-flex;border:1px solid var(--border-strong);border-radius:8px;overflow:hidden}
+.seg button{font-family:var(--font-sans);font-size:13px;font-weight:500;padding:8px 16px;border:0;
+  background:transparent;color:var(--fg-2);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.seg button+button{border-left:1px solid var(--border-strong)}
+.compare{font-size:12.5px;color:var(--fg-muted);margin-top:10px;max-width:66ch}
+.compare b{color:var(--fg-2)}
+.tbl-wrap{overflow-x:auto;margin:0 -4px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-family:var(--font-mono);font-size:13px;font-variant-numeric:tabular-nums}
+th{font-family:var(--font-sans);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--fg-muted);text-align:right;padding:6px 8px;border-bottom:1px solid var(--border-strong);white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+tr.cur{background:var(--accent-soft)}
+tr.cur td{font-weight:600}
+tr.cur td:first-child::after{content:" \2190 yours";font-family:var(--font-sans);font-size:10px;color:var(--accent)}
+h2.sec{font-size:17px;font-weight:600;margin:30px 0 12px;letter-spacing:-.01em}
+button.act{font-family:var(--font-sans);font-size:12.5px;font-weight:500;color:var(--fg);background:var(--surface-2);
+  border:1px solid var(--border-strong);border-radius:7px;padding:7px 12px;cursor:pointer}
+button.act:hover{border-color:var(--accent)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+footer{margin-top:28px;font-size:12px;color:var(--fg-muted);border-top:1px solid var(--border);padding-top:14px}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">Paragon HB LLC · rental hold</div>
+  <h1>BRRRR rental pro forma</h1>
+  <p class="lede">Four steps: what you know about the property, how you're buying it, how you're refinancing, how it runs. Answers stay pinned at the top as you type. Every field is tagged <span class="chip y">yours</span> or <span class="chip a">assumed</span> so a leftover default never slips through.</p>
+
+  <div class="glance" id="glance">
+    <div class="glance-head">Deal at a glance</div>
+    <div id="glance-body"></div>
+  </div>
+
+  <div class="steps">
+
+    <!-- STEP 1 -->
+    <section class="step">
+      <div class="step-head"><span class="num">01</span><h2>What you know about the property</h2><span class="meta">the five that drive everything</span></div>
+      <div class="step-why">Nothing below this step matters if these are wrong. Fill these first.</div>
+      <div class="step-body">
+        <div class="f-group" style="max-width:420px;margin-bottom:14px">
+          <div class="lbl"><label for="prop">Address</label></div>
+          <input type="text" id="prop" value="Address — city, state">
+        </div>
+        <div class="grid">
+          <div class="f-group"><div class="lbl"><label for="purchase">Purchase price ($)</label></div>
+            <input type="number" id="purchase" data-src="y" value="255000" step="1000"></div>
+          <div class="f-group"><div class="lbl"><label for="rehab">Rehab budget ($)</label></div>
+            <input type="number" id="rehab" data-src="y" value="25000" step="500"></div>
+          <div class="f-group"><div class="lbl"><label for="arv">ARV / appraised value ($)</label></div>
+            <input type="number" id="arv" data-src="y" value="325000" step="1000"></div>
+          <div class="f-group"><div class="lbl"><label for="rent">Market rent ($ / mo)</label></div>
+            <input type="number" id="rent" data-src="y" value="3000" step="25"></div>
+          <div class="f-group"><div class="lbl"><label for="units">Units</label></div>
+            <input type="number" id="units" data-src="y" value="1" step="1"></div>
+          <div class="f-group"><div class="lbl"><label for="taxyr">Property tax ($ / yr)</label></div>
+            <input type="number" id="taxyr" data-src="a" value="7150" step="100">
+            <button class="mini" type="button" id="tax-est">Estimate at 2.2% of ARV</button>
+            <div class="sub-note">Use the county's <b>un-exempted</b> figure. The homestead exemption and appraisal cap drop when Paragon takes title as an LLC.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="step">
+      <div class="step-head"><span class="num">02</span><h2>How you're buying it</h2><span class="meta" id="m02">hard money — Boomerang</span></div>
+      <div class="step-why">Hard money is borrowed and then repaid by the refinance, so only its fees and interest reach your final number — what it really buys you is not having the full purchase price liquid. Paying cash skips those fees and lowers your basis, but ties up everything until the refinance.</div>
+      <div class="step-body">
+        <div class="seg" role="group" aria-label="How you are buying it">
+          <button type="button" id="btn-hm" aria-pressed="true">Hard money</button>
+          <button type="button" id="btn-cash" aria-pressed="false">All cash</button>
+        </div>
+        <div class="compare" id="method-compare"></div>
+        <div class="grid" style="margin-top:14px">
+          <div class="f-group hm-only"><div class="lbl"><label for="ltv">Loan-to-price (%)</label></div>
+            <input type="number" id="ltv" data-src="a" value="80" step="1"></div>
+          <div class="f-group hm-only"><div class="lbl"><label for="rehabfin">Rehab financed (%)</label></div>
+            <input type="number" id="rehabfin" data-src="a" value="0" step="5">
+            <div class="sub-note">0 = you fund rehab. Set 100 if Boomerang funds draws.</div></div>
+          <div class="f-group"><div class="lbl"><label for="months">Months to refinance</label></div>
+            <input type="number" id="months" data-src="a" value="5" step="0.5"></div>
+          <div class="f-group hm-only"><div class="lbl"><label for="pts">Origination (pts)</label></div>
+            <input type="number" id="pts" data-src="a" value="1" step="0.25"></div>
+          <div class="f-group hm-only"><div class="lbl"><label for="rate">Interest (% / yr)</label></div>
+            <input type="number" id="rate" data-src="a" value="12" step="0.5"></div>
+          <div class="f-group hm-only"><div class="lbl"><label for="docprep">Doc prep ($)</label></div>
+            <input type="number" id="docprep" data-src="a" value="995" step="50"></div>
+          <div class="f-group"><div class="lbl"><label for="buyclose">Buy-side title ($)</label></div>
+            <input type="number" id="buyclose" data-src="a" value="3200" step="100"></div>
+          <div class="f-group"><div class="lbl"><label for="insvac">Vacant insurance ($ / yr)</label></div>
+            <input type="number" id="insvac" data-src="a" value="2000" step="100"></div>
+          <div class="f-group"><div class="lbl"><label for="utilhold">Utilities in hold ($ / mo)</label></div>
+            <input type="number" id="utilhold" data-src="a" value="150" step="25"></div>
+        </div>
+        <div class="answer" id="acq-answer"></div>
+      </div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="step">
+      <div class="step-head"><span class="num">03</span><h2>How you're refinancing</h2><span class="meta">DSCR loan</span></div>
+      <div class="step-why">Set the LTV and read the three numbers underneath: what the loan is, what comes back to you, and whether it qualifies.</div>
+      <div class="step-body">
+        <div class="grid">
+          <div class="f-group"><div class="lbl"><label for="refiltv">Refi LTV (%)</label></div>
+            <input type="number" id="refiltv" data-src="y" value="70" step="1"></div>
+          <div class="f-group"><div class="lbl"><label for="refirate">Refi rate (% / yr)</label></div>
+            <input type="number" id="refirate" data-src="y" value="7" step="0.125"></div>
+          <div class="f-group"><div class="lbl"><label for="refiterm">Amortization (yrs)</label></div>
+            <input type="number" id="refiterm" data-src="a" value="30" step="5"></div>
+          <div class="f-group"><div class="lbl"><label for="refipts">Refi points (%)</label></div>
+            <input type="number" id="refipts" data-src="y" value="3" step="0.25"></div>
+          <div class="f-group"><div class="lbl"><label for="reficlose">Refi closing ($)</label></div>
+            <input type="number" id="reficlose" data-src="a" value="1800" step="100"></div>
+          <div class="f-group"><div class="lbl"><label for="tdscr">Lender min DSCR (&times;)</label></div>
+            <input type="number" id="tdscr" data-src="a" value="1.25" step="0.05"></div>
+        </div>
+        <div class="answer" id="refi-answer"></div>
+        <div class="hint">A DSCR lender underwrites <b>gross rent &divide; PITIA</b> — principal, interest, tax, insurance, HOA. Management and reserves don't count against you for qualifying, so this ratio runs higher than your real coverage. Most want 1.20–1.25 and 3–6 months of seasoning.</div>
+      </div>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="step">
+      <div class="step-head"><span class="num">04</span><h2>How it runs once it's rented</h2><span class="meta">stabilized monthly</span></div>
+      <div class="step-why">The percentages are reserves, not bills. They're what turns a rent number into a cash flow number you can trust.</div>
+      <div class="step-body">
+        <div class="grid">
+          <div class="f-group"><div class="lbl"><label for="inslandlord">Landlord insurance ($ / yr)</label></div>
+            <input type="number" id="inslandlord" data-src="a" value="2000" step="100"></div>
+          <div class="f-group"><div class="lbl"><label for="hoayr">HOA dues ($ / yr)</label></div>
+            <input type="number" id="hoayr" data-src="a" value="0" step="50"></div>
+          <div class="f-group"><div class="lbl"><label for="other">Other income ($ / mo)</label></div>
+            <input type="number" id="other" data-src="a" value="0" step="10"></div>
+          <div class="f-group"><div class="lbl"><label for="vac">Vacancy (%)</label></div>
+            <input type="number" id="vac" data-src="a" value="8" step="1"></div>
+          <div class="f-group"><div class="lbl"><label for="pm">Management (%)</label></div>
+            <input type="number" id="pm" data-src="a" value="8" step="0.5"></div>
+          <div class="f-group"><div class="lbl"><label for="maint">Maintenance (%)</label></div>
+            <input type="number" id="maint" data-src="a" value="7" step="1"></div>
+          <div class="f-group"><div class="lbl"><label for="capex">CapEx reserve (%)</label></div>
+            <input type="number" id="capex" data-src="a" value="7" step="1"></div>
+          <div class="f-group"><div class="lbl"><label for="utilm">Owner utilities ($ / mo)</label></div>
+            <input type="number" id="utilm" data-src="a" value="0" step="25"></div>
+          <div class="f-group"><div class="lbl"><label for="miscm">Lawn / misc ($ / mo)</label></div>
+            <input type="number" id="miscm" data-src="a" value="0" step="25"></div>
+        </div>
+        <div class="answer" id="ops-answer"></div>
+      </div>
+    </section>
+  </div>
+
+  <h2 class="sec">The numbers</h2>
+  <div class="flags" id="flags"></div>
+
+  <div class="two">
+    <div class="stmt"><h3>Cash required to acquire</h3><div id="s1"></div></div>
+    <div class="stmt"><h3>Refinance settlement</h3><div id="s2"></div></div>
+  </div>
+  <div class="two">
+    <div class="stmt"><h3>Monthly operating statement</h3><div id="s3"></div></div>
+    <div class="stmt"><h3>Returns &amp; sanity checks</h3><div id="s4"></div></div>
+  </div>
+
+  <div class="stmt" style="margin-top:14px"><h3>What each refi LTV gets you</h3>
+    <div class="tbl-wrap"><table id="s2b"></table></div>
+    <div class="hint">Cash back is what the refinance hands you after the hard money payoff and its own costs. Out of pocket is what stays in the property for good.</div>
+  </div>
+
+  <div class="toolbar">
+    <button class="act" id="copy" type="button">Copy summary</button>
+    <button class="act" id="clear" type="button">Clear all fields</button>
+    <span class="sub-note" id="copied" style="margin:0"></span>
+  </div>
+
+  <footer>
+    Vendors: Avant National Title (Jacob Echols) · Boomerang Finance · Goosehead (Joseph Christy). Title, insurance and refinance figures are estimates until the net sheet, binder and term sheet land. Legal determinations stay with Jacob.
+  </footer>
+</div>
+
+<script>
+(function(){
+  var ids=['purchase','rehab','months','arv','ltv','rehabfin','pts','rate','docprep','buyclose','insvac','utilhold',
+           'refiltv','refirate','refiterm','refipts','reficlose','tdscr',
+           'rent','units','other','taxyr','inslandlord','hoayr','vac','pm','maint','capex','utilm','miscm'];
+  function el(id){return document.getElementById(id);}
+  function v(id){return parseFloat(el(id).value)||0;}
+  function money(n){var s='$'+Math.abs(Math.round(n)).toLocaleString('en-US');return n<0?'−'+s:s;}
+  function pct(n,d){return (isFinite(n)?n.toFixed(d===undefined?1:d):'—')+'%';}
+  function pmt(L,ar,yrs){var n=yrs*12,r=ar/100/12;if(n<=0||L<=0)return 0;if(r===0)return L/n;return L*r/(1-Math.pow(1+r,-n));}
+  function loanFromPmt(P,ar,yrs){var n=yrs*12,r=ar/100/12;if(P<=0||n<=0)return 0;if(r===0)return P*n;return P*(1-Math.pow(1+r,-n))/r;}
+  function row(label,val,o){o=o||{};
+    var cls='row'+(o.total?' total':'')+(o.head?' sub-h':'');
+    if(o.head)return '<div class="'+cls+'"><span>'+label+'</span><span></span></div>';
+    return '<div class="'+cls+'"><span>'+label+'</span><span class="'+(o.c||'')+'">'+val+'</span></div>';}
+  function tile(k,val,cls,foot){return '<div><div class="a-k">'+k+'</div><div class="a-v '+(cls||'')+'">'+val+
+    '</div><div class="a-f">'+foot+'</div></div>';}
+
+  // source chips: every field is either yours or an assumption, and editing one claims it
+  ids.forEach(function(id){
+    var i=el(id), c=document.createElement('span');
+    c.className='chip '+(i.dataset.src==='y'?'y':'a');
+    c.textContent=i.dataset.src==='y'?'yours':'assumed';
+    i.closest('.f-group').querySelector('.lbl').appendChild(c);
+    i.addEventListener('input',function(){
+      if(i.dataset.src!=='y'){i.dataset.src='y';c.className='chip y';c.textContent='yours';}
+      calc();
+    });
+  });
+  el('prop').addEventListener('input',calc);
+
+  var method='hm';
+  function setMethod(m){
+    method=m;
+    el('btn-hm').setAttribute('aria-pressed',m==='hm');
+    el('btn-cash').setAttribute('aria-pressed',m==='cash');
+    el('m02').textContent=(m==='hm')?'hard money — Boomerang':'all cash — no acquisition loan';
+    Array.prototype.forEach.call(document.querySelectorAll('.hm-only'),function(n){n.hidden=(m==='cash');});
+    calc();
+  }
+  function calc(){
+    var purchase=v('purchase'),rehab=v('rehab'),months=v('months'),arv=v('arv'),
+        ltv=v('ltv'),rehabfin=v('rehabfin'),pts=v('pts'),rate=v('rate'),docprep=v('docprep'),
+        buyclose=v('buyclose'),insvac=v('insvac'),utilhold=v('utilhold'),
+        refiltv=v('refiltv'),refirate=v('refirate'),refiterm=v('refiterm'),refipts=v('refipts'),
+        reficlose=v('reficlose'),tdscr=v('tdscr'),
+        rent=v('rent'),units=Math.max(1,v('units')),other=v('other'),taxyr=v('taxyr'),
+        insll=v('inslandlord'),hoayr=v('hoayr'),
+        vac=v('vac'),pmp=v('pm'),maintp=v('maint'),capexp=v('capex'),utilm=v('utilm'),miscm=v('miscm');
+
+    // 01 acquisition — computed for both methods so each can be read against the other
+    var isCash=(method==='cash');
+    var taxHold=taxyr/12*months, insHold=insvac/12*months, hoaHold=hoayr/12*months, utilHold=utilhold*months;
+    var carry=taxHold+insHold+hoaHold+utilHold;
+    function acq(cash){
+      var lp=cash?0:purchase*ltv/100, rf=cash?0:rehab*rehabfin/100, hl=lp+rf;
+      var o=cash?0:hl*pts/100, dp=cash?0:docprep, it=cash?0:hl*(rate/100/12)*months;
+      return {loan:hl,down:purchase-lp,rehabCash:rehab-rf,orig:o,doc:dp,interest:it,
+        cashAcq:(purchase-lp)+(rehab-rf)+o+dp+buyclose+it+carry,
+        allIn:purchase+rehab+o+dp+buyclose+it+carry};
+    }
+    var A=acq(isCash), B=acq(!isCash);
+    var hmLoan=A.loan, down=A.down, rehabCash=A.rehabCash, orig=A.orig, hmInterest=A.interest;
+    var docprepEff=A.doc, cashAcq=A.cashAcq, allIn=A.allIn;
+    var capital=down+rehabCash, fees=orig+docprepEff+buyclose;
+    var burn=hmInterest+taxHold+insHold+hoaHold+utilHold;
+    var burnMo=months>0?burn/months:0;
+
+    // 02 refinance
+    var newLoan=arv*refiltv/100, refiPtsCost=newLoan*refipts/100;
+    var proceeds=newLoan-refiPtsCost-reficlose-hmLoan;
+    var cashLeft=cashAcq-proceeds, equity=arv-newLoan, pay=pmt(newLoan,refirate,refiterm);
+
+    // 03 operations
+    var gross=rent*units+other, vacLoss=gross*vac/100, egi=gross-vacLoss;
+    var pmFee=egi*pmp/100, maint=gross*maintp/100, capex=gross*capexp/100;
+    var taxM=taxyr/12, insM=insll/12, hoaM=hoayr/12;
+    var opex=pmFee+maint+capex+taxM+insM+hoaM+utilm+miscm;
+    var noi=egi-opex, cf=noi-pay;
+    var pitia=pay+taxM+insM+hoaM;
+    var piLabel='PITI'+(hoaM>0?'A':'');
+    var overPiti=gross-pitia;
+    var lDscr=pitia>0?gross/pitia:Infinity, noiCov=pay>0?noi/pay:Infinity;
+    var piAtTarget=(tdscr>0?gross/tdscr:0)-taxM-insM-hoaM;
+    var maxLoanDscr=loanFromPmt(piAtTarget,refirate,refiterm), maxLoanBE=loanFromPmt(noi,refirate,refiterm);
+    var ltvDscr=arv>0?maxLoanDscr/arv*100:0, ltvBE=arv>0?maxLoanBE/arv*100:0;
+    var coc=cashLeft>0?(cf*12/cashLeft*100):Infinity;
+    var capArv=arv>0?noi*12/arv*100:0, yoc=allIn>0?noi*12/allIn*100:0;
+    var incAfterFixed=gross*12-insll-taxyr;
+    var capBase=purchase+rehab;
+    var capPurch=capBase>0?incAfterFixed/capBase*100:0;
+    var capAllIn=allIn>0?incAfterFixed/allIn*100:0;
+    var annualDS=pay*12, afterDebt=incAfterFixed-annualDS;
+    var retOnLeft=cashLeft>0?afterDebt/cashLeft*100:Infinity;
+    var fixed=taxM+insM+hoaM+utilm+miscm;
+    var varRate=(vac+maintp+capexp)/100+(pmp/100)*(1-vac/100);
+    var beGross=varRate<1?(fixed+pay)/(1-varRate):Infinity;
+    var beRent=isFinite(beGross)?(beGross-other)/units:Infinity;
+    var breakEvenOcc=gross>0?(opex+pay)/gross*100:0;
+    var rentToAllIn=allIn>0?gross/allIn*100:0;
+
+    // required-input gate
+    var missing=[];
+    if(purchase<=0)missing.push('purchase price');
+    if(arv<=0)missing.push('ARV');
+    if(rent<=0)missing.push('rent');
+    var gb=el('glance-body');
+    if(missing.length){
+      gb.innerHTML='<div class="gate">Enter '+missing.join(', ')+' in step 01 to see the numbers.</div>';
+    } else {
+      var assumed=ids.filter(function(id){return el(id).dataset.src!=='y';}).length;
+      function gi(k,val,cls){return '<div><div class="g-k">'+k+'</div><div class="g-v '+(cls||'')+'">'+val+'</div></div>';}
+      function gsec(t,items,first){return '<div class="g-sec'+(first?' first':'')+'">'+t+'</div><div class="g-grid">'+items+'</div>';}
+      gb.innerHTML=
+        '<div class="g-grid hi">'+
+          gi('Purchase + rehab',money(purchase+rehab))+
+          gi('All-in incl. closing',money(allIn))+
+          gi('Cash to acquire',money(cashAcq))+
+          gi('Cash left in deal',money(cashLeft),cashLeft<=0?'':'warnc')+
+          gi('Monthly cash flow',money(cf),cf>=0?'':'neg')+
+          gi('Cap on purchase + rehab',pct(capPurch))+
+          gi('Property tax / yr',money(taxyr),el('taxyr').dataset.src!=='y'?'warnc':'')+
+          gi('Insurance / yr',money(insll),el('inslandlord').dataset.src!=='y'?'warnc':'')+
+          gi(piLabel+' / mo',money(pitia),'plain')+
+          gi('Rent less '+piLabel,money(overPiti),overPiti>=0?'':'neg')+
+        '</div>'+
+        '<details class="more"><summary>All figures</summary>'+
+        gsec('The property',
+          gi('Purchase price',money(purchase))+
+          gi('Rehab budget',money(rehab))+
+          gi('All-in basis',money(allIn))+
+          gi('ARV / appraised',money(arv))+
+          gi('All-in ÷ ARV',pct(arv>0?allIn/arv*100:0),arv>0&&allIn/arv<=0.75?'':'warnc')+
+          gi('Equity after refi',money(equity)),true)+
+        gsec('Getting it done — '+(isCash?'all cash':'hard money'),
+          gi('Cash to acquire',money(cashAcq))+
+          gi('Lost over the hold',money(burn),'neg')+
+          gi('Burn per month',money(burnMo),'neg')+
+          gi('Months to refi',months+' mo','plain'))+
+        gsec('The refinance',
+          gi('New loan at '+refiltv+'%',money(newLoan))+
+          gi('Cash back at refi',money(proceeds),proceeds>=0?'':'neg')+
+          gi('Cash left in deal',money(cashLeft),cashLeft<=0?'':'warnc')+
+          gi('Monthly P&amp;I',money(pay))+
+          gi(piLabel+' / mo',money(pitia))+
+          gi('Lender DSCR',isFinite(lDscr)?lDscr.toFixed(2)+'×':'—',lDscr>=tdscr?'':(lDscr>=1?'warnc':'neg')))+
+        gsec('Once it is rented',
+          gi('Monthly cash flow',money(cf),cf>=0?'':'neg')+
+          gi('Annual cash flow',money(cf*12),cf>=0?'':'neg')+
+          gi('NOI per year',money(noi*12),noi>=0?'':'neg')+
+          gi('Cap on purchase + rehab',pct(capPurch))+
+          gi('Cap on all-in',pct(capAllIn))+
+          gi('Return on equity left in',isFinite(retOnLeft)?pct(retOnLeft):'Infinite',
+             isFinite(retOnLeft)&&retOnLeft<0?'neg':'')+
+          gi('Cap on ARV, full opex',pct(capArv))+
+          gi('Yield on cost',pct(yoc))+
+          gi('Cash-on-cash',isFinite(coc)?pct(coc):'Infinite',isFinite(coc)&&coc<0?'neg':''))+
+        '</details>'+
+        '<div class="g-foot">Green is the figure, not a verdict — anything negative or off-target turns red or amber. '+
+        assumed+' field'+(assumed===1?' is':'s are')+' still carrying an assumed default.</div>';
+    }
+    el('ops-answer').innerHTML=
+      tile('Monthly cash flow',money(cf),cf>=0?'pos':'neg',money(cf*12)+' per year')+
+      tile('NOI',money(noi),noi>=0?'pos':'neg',money(noi*12)+' per year')+
+      tile('Break-even rent',isFinite(beRent)?money(beRent):'—',beRent<rent?'pos':'neg',
+           'vs '+money(rent)+' asked')+
+      tile('Expense ratio',pct(egi>0?opex/egi*100:0,0),'','opex ÷ effective gross');
+    ids.forEach(function(id){var i=el(id);
+      i.classList.toggle('empty',(id==='purchase'||id==='arv'||id==='rent')&&v(id)<=0);});
+
+    // what the other method would do
+    var bOut=B.allIn-newLoan+refiPtsCost+reficlose, dOut=bOut-cashLeft, dUp=B.cashAcq-cashAcq;
+    el('method-compare').innerHTML= isCash
+      ? 'With <b>hard money</b> instead: <b>'+money(B.cashAcq)+'</b> up front ('+money(Math.abs(dUp))+
+        ' less to float) and <b>'+money(bOut)+'</b> out of pocket at the end — '+money(Math.abs(dOut))+
+        ' more, which is what the points, doc prep and interest cost you.'
+      : 'With <b>all cash</b> instead: <b>'+money(B.cashAcq)+'</b> up front ('+money(Math.abs(dUp))+
+        ' more to float) and <b>'+money(bOut)+'</b> out of pocket at the end — '+money(Math.abs(dOut))+
+        ' less, since you skip the points, doc prep and interest.';
+
+    // inline answers
+    el('acq-answer').innerHTML=
+      (isCash?tile('Acquisition loan','None','','bought with cash')
+             :tile('Hard money loan',money(hmLoan),'',ltv+'% of price'+(rehabfin>0?' + rehab draws':'')))+
+      tile('Cash to acquire',money(cashAcq),'','before any refi proceeds')+
+      tile('Lost during the hold',money(burn),'neg',money(burnMo)+' / mo with no rent')+
+      tile('All-in basis',money(allIn),arv>0&&allIn/arv<=0.75?'pos':'warnc',
+           arv>0?pct(allIn/arv*100)+' of ARV':'enter ARV');
+    el('refi-answer').innerHTML=
+      tile('New loan at '+refiltv+'%',money(newLoan),'','on '+money(arv)+' appraised')+
+      tile('Cash back at refi',money(proceeds),proceeds>=0?'pos':'neg',
+           proceeds>=0?'after '+money(hmLoan)+' payoff + costs':'you bring this to closing')+
+      tile('Lender DSCR',isFinite(lDscr)?lDscr.toFixed(2)+'×':'—',
+           lDscr>=tdscr?'pos':(lDscr>=1?'warnc':'neg'),
+           lDscr>=tdscr?'clears your '+tdscr.toFixed(2)+'× floor':'below your '+tdscr.toFixed(2)+'× floor')+
+      tile(piLabel+' / mo',money(pitia),'',
+           overPiti>=0?'rent clears it by '+money(overPiti):'rent short by '+money(Math.abs(overPiti)))+
+      tile('Max LTV at '+tdscr.toFixed(2)+'×',pct(ltvDscr,1),refiltv<=ltvDscr?'pos':'warnc',
+           money(maxLoanDscr)+' max loan')+
+      tile('Out of pocket at the end',money(cashLeft),cashLeft<=0?'pos':'',
+           money(cashAcq)+' in, '+money(proceeds)+' back');
+
+    // statements
+    var h='';
+    h+=row('Purchase price',money(purchase));
+    h+=row(isCash?'Acquisition loan':'Hard money loan ('+ltv+'% of price'+(rehabfin>0?' + '+rehabfin+'% of rehab':'')+')',
+           isCash?'None':money(hmLoan));
+    h+=row('Capital you put in — becomes basis',null,{head:true});
+    h+=row(isCash?'Cash paid for the property':'Down payment',money(down));
+    h+=row('Rehab out of pocket',money(rehabCash));
+    h+=row('Capital subtotal',money(capital),{total:true});
+    h+=row('One-time fees — gone at closing',null,{head:true});
+    if(!isCash){
+      h+=row('Origination ('+pts+' pt)',money(orig));
+      h+=row('Doc prep / processing',money(docprepEff));
+    }
+    h+=row('Buy-side title / escrow',money(buyclose));
+    h+=row('Fees subtotal',money(fees),{total:true,c:'neg'});
+    h+=row('Lost over the '+months+'-month hold — no rent coming in',null,{head:true});
+    if(!isCash)h+=row('Hard money interest ('+months+' mo @ '+rate+'%)',money(hmInterest));
+    h+=row('Property tax ('+months+' mo)',money(taxHold));
+    h+=row('Vacant-dwelling insurance ('+months+' mo)',money(insHold));
+    if(hoaHold>0)h+=row('HOA dues ('+months+' mo)',money(hoaHold));
+    h+=row('Utilities ('+months+' mo)',money(utilHold));
+    h+=row('Holding loss subtotal',money(burn),{total:true,c:'neg'});
+    h+=row('Burn per month of delay',money(burnMo),{c:'neg'});
+    h+=row('Cash required to acquire',money(cashAcq),{total:true});
+    h+=row('All-in cost basis',money(allIn));
+    h+=row('All-in as % of ARV',pct(arv>0?allIn/arv*100:0));
+    el('s1').innerHTML=h;
+
+    h='';
+    h+=row('Appraised value',money(arv));
+    h+=row('New loan ('+refiltv+'% LTV)',money(newLoan));
+    if(hmLoan>0)h+=row('Hard money payoff','−'+money(hmLoan).replace('−',''));
+    h+=row('Refi points ('+refipts+'%)','−'+money(refiPtsCost).replace('−',''));
+    h+=row('Refi closing costs','−'+money(reficlose).replace('−',''));
+    h+=row(proceeds>=0?'Cash back at refi':'Cash due at refi',money(proceeds),{total:true,c:proceeds>=0?'pos':'neg'});
+    h+=row('Where that leaves you',null,{head:true});
+    h+=row('Out of pocket after refi',money(cashLeft),{c:cashLeft<=0?'pos':''});
+    h+=row('Capital recovered',pct(cashAcq>0?Math.max(0,Math.min(proceeds,cashAcq))/cashAcq*100:0,0));
+    h+=row('Equity retained',money(equity));
+    h+=row('New P&amp;I payment ('+refiterm+'-yr @ '+refirate+'%)',money(pay));
+    h+=row(piLabel+' (P&amp;I + tax + ins'+(hoaM>0?' + HOA':'')+')',money(pitia));
+    h+=row('Max loan at '+tdscr.toFixed(2)+'× DSCR',money(maxLoanDscr)+'  ('+pct(ltvDscr,0)+' LTV)',
+           {c:maxLoanDscr>=newLoan?'pos':'warnc'});
+    h+=row('Max loan that breaks even on cash flow',money(maxLoanBE)+'  ('+pct(ltvBE,0)+' LTV)',
+           {c:maxLoanBE>=newLoan?'pos':'warnc'});
+    el('s2').innerHTML=h;
+
+    h='';
+    h+=row('Gross rent'+(units>1?' ('+units+' units)':''),money(rent*units));
+    if(other>0)h+=row('Other income',money(other));
+    h+=row('Vacancy loss ('+vac+'%)','−'+money(vacLoss).replace('−',''));
+    h+=row('Effective gross income',money(egi),{total:true});
+    h+=row('Operating expenses',null,{head:true});
+    h+=row('Management ('+pmp+'% of EGI)','−'+money(pmFee).replace('−',''));
+    h+=row('Maintenance ('+maintp+'%)','−'+money(maint).replace('−',''));
+    h+=row('CapEx reserve ('+capexp+'%)','−'+money(capex).replace('−',''));
+    h+=row('Property tax','−'+money(taxM).replace('−',''));
+    h+=row('Insurance','−'+money(insM).replace('−',''));
+    if(hoaM>0)h+=row('HOA dues','−'+money(hoaM).replace('−',''));
+    if(utilm>0)h+=row('Owner utilities','−'+money(utilm).replace('−',''));
+    if(miscm>0)h+=row('Lawn / misc','−'+money(miscm).replace('−',''));
+    h+=row('Total operating expenses','−'+money(opex).replace('−',''),{total:true});
+    h+=row('Net operating income',money(noi),{total:true,c:noi>=0?'pos':'neg'});
+    h+=row('Debt service (P&amp;I)','−'+money(pay).replace('−',''));
+    h+=row('Monthly cash flow',money(cf),{total:true,c:cf>=0?'pos':'neg'});
+    h+=row(piLabel+' — what the lender counts',null,{head:true});
+    h+=row('Principal &amp; interest',money(pay));
+    h+=row('Property tax',money(taxM));
+    h+=row('Insurance',money(insM));
+    if(hoaM>0)h+=row('HOA dues',money(hoaM));
+    h+=row(piLabel+' total',money(pitia),{total:true});
+    h+=row('Gross rent less '+piLabel,money(overPiti),{c:overPiti>=0?'pos':'neg'});
+    h+=row('… then management &amp; reserves',money(cf-overPiti),{c:'neg'});
+    el('s3').innerHTML=h;
+
+    h='';
+    h+=row('Monthly cash flow',money(cf),{c:cf>=0?'pos':'neg'});
+    h+=row('Annual cash flow',money(cf*12),{c:cf>=0?'pos':'neg'});
+    if(units>1)h+=row('Cash flow per unit / mo',money(cf/units));
+    h+=row('Cash-on-cash return',isFinite(coc)?pct(coc):'Infinite — nothing left in',
+           {c:isFinite(coc)?(coc>=0?'':'neg'):'pos'});
+    h+=row('Lender DSCR (rent ÷ PITIA)',isFinite(lDscr)?lDscr.toFixed(2)+'×':'—',
+           {c:lDscr>=tdscr?'pos':(lDscr>=1?'warnc':'neg')});
+    h+=row('NOI coverage (NOI ÷ debt service)',isFinite(noiCov)?noiCov.toFixed(2)+'×':'—',
+           {c:noiCov>=1?'pos':'neg'});
+    h+=row('Cap rate — your formula',null,{head:true});
+    h+=row('Annual income',money(gross*12));
+    h+=row('Less property tax','−'+money(taxyr).replace('−',''));
+    h+=row('Less insurance','−'+money(insll).replace('−',''));
+    h+=row('Income after tax &amp; insurance',money(incAfterFixed),{total:true});
+    h+=row('Cap on purchase + rehab ('+money(capBase)+')',pct(capPurch),{c:'pos'});
+    h+=row('Cap on all-in ('+money(allIn)+')',pct(capAllIn));
+    h+=row('After the refinance',null,{head:true});
+    h+=row('Income after tax &amp; insurance',money(incAfterFixed));
+    h+=row('Less annual debt service','−'+money(annualDS).replace('−',''));
+    h+=row('Left after debt',money(afterDebt),{total:true,c:afterDebt>=0?'pos':'neg'});
+    h+=row('Return on equity left in ('+money(cashLeft)+')',
+           isFinite(retOnLeft)?pct(retOnLeft):'Infinite — nothing left in',
+           {c:isFinite(retOnLeft)?(retOnLeft>=0?'pos':'neg'):'pos'});
+    h+=row('After every operating cost',null,{head:true});
+    h+=row('Cap on ARV (full NOI)',pct(capArv));
+    h+=row('Yield on cost (NOI ÷ all-in)',pct(yoc));
+    h+=row('Sanity checks',null,{head:true});
+    h+=row('Break-even rent / unit',isFinite(beRent)?money(beRent):'—',{c:beRent<rent?'pos':'neg'});
+    h+=row('Break-even occupancy',pct(breakEvenOcc,0),{c:breakEvenOcc<=92?'pos':'warnc'});
+    h+=row('Rent ÷ all-in cost (1% rule)',pct(rentToAllIn,2),{c:rentToAllIn>=1?'pos':'warnc'});
+    h+=row('Expense ratio (opex ÷ EGI)',pct(egi>0?opex/egi*100:0,0));
+    el('s4').innerHTML=h;
+
+    var th='<thead><tr><th>Refi LTV</th><th>Loan</th><th>Cash back</th><th>Out of pocket</th><th>P&amp;I / mo</th>'+
+           '<th>Lender DSCR</th><th>Cash flow / mo</th></tr></thead><tbody>';
+    [60,65,70,75,80,85].concat(Math.abs(refiltv%5)<0.01?[]:[refiltv]).sort(function(a,b){return a-b;}).forEach(function(L){
+      var nl=arv*L/100, pc=nl*refipts/100, pr=nl-pc-reficlose-hmLoan, cl=cashAcq-pr,
+          py=pmt(nl,refirate,refiterm), pt=py+taxM+insM+hoaM, ld=pt>0?gross/pt:Infinity, c2=noi-py;
+      th+='<tr'+(Math.abs(L-refiltv)<0.01?' class="cur"':'')+'>'+
+        '<td>'+(Math.round(L*100)/100)+'%</td><td>'+money(nl)+'</td>'+
+        '<td class="'+(pr>=0?'pos':'neg')+'">'+money(pr)+'</td>'+
+        '<td class="'+(cl<=0?'pos':'')+'">'+money(cl)+'</td><td>'+money(py)+'</td>'+
+        '<td class="'+(ld>=tdscr?'pos':(ld>=1?'warnc':'neg'))+'">'+(isFinite(ld)?ld.toFixed(2)+'×':'—')+'</td>'+
+        '<td class="'+(c2>=0?'pos':'neg')+'">'+money(c2)+'</td></tr>';
+    });
+    el('s2b').innerHTML=th+'</tbody>';
+
+    // flags
+    var fl=[];
+    if(missing.length)fl.push(['mid','Incomplete','Still missing '+missing.join(', ')+'. Everything below is computed from zero until those are in.']);
+    if(cf<0)fl.push(['bad','Negative','Rents at a monthly loss of '+money(Math.abs(cf))+'. Rent has to reach '+money(beRent)+' per unit, or the loan has to drop to '+money(maxLoanBE)+', before it carries itself.']);
+    else if(cf<100*units)fl.push(['mid','Thin','Cash flow of '+money(cf)+' leaves no room for one bad turnover. A single vacancy plus a make-ready wipes out a year of it.']);
+    if(lDscr<tdscr)fl.push(['bad','Financing','Lender DSCR of '+lDscr.toFixed(2)+'× is under your '+tdscr.toFixed(2)+'× floor, so '+money(newLoan)+' does not get approved at this rent. The loan has to come down to about '+money(maxLoanDscr)+' ('+pct(ltvDscr,0)+' LTV).']);
+    if(proceeds<0)fl.push(['bad','Refi gap','The refinance does not cover the hard money payoff and its own costs — you bring '+money(Math.abs(proceeds))+' to that closing on top of the cash already in.']);
+    if(cashLeft<=0)fl.push(['ok','Full recapture','The refi returns everything you put in, so cash-on-cash is unbounded. Confirm the appraisal supports '+money(arv)+' first.']);
+    else if(arv>0&&allIn/arv>0.80)fl.push(['mid','Basis too high','All-in is '+pct(allIn/arv*100)+' of ARV, so a '+refiltv+'% loan cannot repay it — that gap is why '+money(cashLeft)+' stays in. A full recapture here needs an all-in near '+money(arv*refiltv/100)+'.']);
+    if(maxLoanBE<newLoan)fl.push(['mid','Leverage ceiling','At '+refirate+'% this rent only carries about '+money(maxLoanBE)+' ('+pct(ltvBE,0)+' LTV) at break-even. Above that you are buying capital back with monthly cash flow.']);
+    if(!isCash&&dOut!==0)fl.push(['mid','Cost of the float','Hard money costs '+money(Math.abs(dOut))+
+      ' more than buying cash, and saves you floating '+money(Math.abs(dUp))+' for '+months+
+      ' months — about '+pct(Math.abs(dUp)>0?(Math.abs(dOut)/Math.abs(dUp))*(12/Math.max(months,0.5))*100:0)+
+      ' annualized on money you did not have to put up.']);
+    if(isCash)fl.push(['mid','Delayed financing','Buying cash can qualify for a delayed-financing cash-out, but many lenders cap it at your documented cost rather than appraised value until 6 months of seasoning. Confirm which basis applies before counting on '+money(newLoan)+'.']);
+    if(burn>0)fl.push(['mid','Holding loss','The property loses '+money(burn)+' over the '+months+
+      '-month hold — '+money(burnMo)+' every month it sits with no rent. Each extra month of rehab or lease-up adds that much to your basis, so the timeline is worth as much as the budget.']);
+    if(months<6)fl.push(['mid','Seasoning','A '+months+'-month hold may not meet the lender’s seasoning rule for cash-out at full appraised value; some price off purchase price until 6–12 months.']);
+    if(v('capex')===0||v('vac')===0)fl.push(['mid','Understated','Vacancy or CapEx is zero. The cash flow above is not a number to underwrite against until both carry a real reserve.']);
+    if(el('taxyr').dataset.src!=='y')fl.push(['mid','Tax estimate','Property tax is still an estimate. Pull the county’s un-exempted assessed value — at this margin that one field decides whether the deal is positive or negative.']);
+    var na=ids.filter(function(id){return el(id).dataset.src!=='y';});
+    if(na.length)fl.push(['mid','Assumptions',na.length+' field'+(na.length===1?' is':'s are')+' still carrying a default rather than a confirmed figure. Each one you overwrite turns green.']);
+    el('flags').innerHTML=fl.map(function(f){
+      return '<div class="flag '+f[0]+'"><span class="tag">'+f[1]+'</span><span>'+f[2]+'</span></div>';}).join('');
+
+    window.__summary=function(){
+      return [el('prop').value,
+        'Acquisition: '+(isCash?'all cash':'hard money'),
+        'Purchase '+money(purchase)+' · rehab '+money(rehab)+' · ARV '+money(arv)+' · rent '+money(gross)+'/mo',
+        'Cash to acquire: '+money(cashAcq),
+        'Lost during the hold: '+money(burn)+' ('+money(burnMo)+'/mo)',
+        'All-in basis: '+money(allIn)+' ('+pct(arv>0?allIn/arv*100:0)+' of ARV)',
+        'Refi: '+money(newLoan)+' at '+refiltv+'% LTV, '+refirate+'% / '+refiterm+'yr — P&I '+money(pay),
+        'Cash back at refi: '+money(proceeds),
+        'Out of pocket at the end: '+money(cashLeft),
+        piLabel+': '+money(pitia)+'/mo (rent less '+piLabel+': '+money(overPiti)+')',
+        'NOI: '+money(noi)+'/mo · '+money(noi*12)+'/yr',
+        'Monthly cash flow: '+money(cf)+' ('+money(cf*12)+'/yr)',
+        'Lender DSCR '+(isFinite(lDscr)?lDscr.toFixed(2)+'x':'—')+' · NOI coverage '+(isFinite(noiCov)?noiCov.toFixed(2)+'x':'—'),
+        'Cap on purchase+rehab '+pct(capPurch)+' · cap on all-in '+pct(capAllIn)+
+        ' · return on equity left in '+(isFinite(retOnLeft)?pct(retOnLeft):'infinite')+' · cap on ARV (full opex) '+pct(capArv),
+        'CoC '+(isFinite(coc)?pct(coc):'infinite')+' · yield on cost '+pct(yoc),
+        'Max loan at '+tdscr.toFixed(2)+'x DSCR: '+money(maxLoanDscr)+' · max loan at break-even CF: '+money(maxLoanBE)
+      ].join('\n');};
+  }
+
+  el('btn-hm').addEventListener('click',function(){setMethod('hm');});
+  el('btn-cash').addEventListener('click',function(){setMethod('cash');});
+  el('tax-est').addEventListener('click',function(){
+    var t=el('taxyr'); t.value=Math.round(v('arv')*0.022/10)*10; calc();
+  });
+  el('clear').addEventListener('click',function(){
+    ids.forEach(function(id){var i=el(id);
+      i.value=(id==='units')?1:0;
+      i.dataset.src='a';
+      var c=i.closest('.f-group').querySelector('.chip');
+      c.className='chip a'; c.textContent='assumed';});
+    el('prop').value=''; calc(); window.scrollTo({top:0,behavior:'smooth'});
+  });
+  el('copy').addEventListener('click',function(){
+    var t=window.__summary(),n=el('copied');
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(function(){n.textContent='Copied.';},
+        function(){n.textContent='Copy blocked — select the figures instead.';});
+    } else {n.textContent='Copy blocked — select the figures instead.';}
+    setTimeout(function(){n.textContent='';},4000);
+  });
+  calc();
+})();
+</script>
